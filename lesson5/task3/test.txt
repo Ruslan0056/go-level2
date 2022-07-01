@@ -1,0 +1,18 @@
+goos: linux
+goarch: amd64
+pkg: task3/mutex
+cpu: Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz
+BenchmarkMutexOne-4     	   34066	     37637 ns/op
+BenchmarkMutexTwo-4     	   30493	     39413 ns/op
+BenchmarkMutexThree-4   	   29712	     40177 ns/op
+PASS
+ok  	task3/mutex	4.857s
+goos: linux
+goarch: amd64
+pkg: task3/rwmutex
+cpu: Intel(R) Core(TM) i5-3230M CPU @ 2.60GHz
+BenchmarkRWMutexOne-4     	   33420	     38562 ns/op
+BenchmarkRWMutexTwo-4     	   29704	     39290 ns/op
+BenchmarkRWMutexThree-4   	   28606	     41307 ns/op
+PASS
+ok  	task3/rwmutex	4.856s
