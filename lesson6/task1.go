@@ -2,42 +2,43 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"os"
+	"runtime/trace"
 	"sync"
 )
 
 const count = 10
 
 func main() {
+	trace.Start(os.Stderr)
+	defer trace.Stop()
+
 	var (
 		lock sync.Mutex
 		ch   = make(chan int)
-		done = make(chan struct{})
-		wg   = sync.WaitGroup{}
+		wg = sync.WaitGroup{}
 	)
 
 	wg.Add(count)
 	for i := 0; i <= count; i += 1 {
 		go func() {
-			defer close(done)
 			defer wg.Done()
 			lock.Lock()
 			defer lock.Unlock()
-			ch <- i
+		
+			ch <- rand.Intn(100)
 		}()
-		sec := <-ch
-		fmt.Println(sec)
 	}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		for {
-			select {
-			case v := <-ch:
-				fmt.Println(v)
-			case <-done:
-				return
-			}
+		for i := 0; i <= count; i++ {
+			v := <-ch
+			fmt.Println(v)
+
 		}
+
 	}()
 
 	wg.Wait()

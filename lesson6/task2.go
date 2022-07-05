@@ -2,44 +2,43 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"runtime/trace"
 	"sync"
+	"time"
 )
 
 const count = 10
 
 func main() {
+	trace.Start(os.Stderr)
+	defer trace.Stop()
+
 	var (
-		lock sync.Mutex
-		ch   = make(chan int)
-		done = make(chan struct{})
-		wg = sync.WaitGroup
+		counter int64
+		lock    sync.Mutex
 	)
 
-	wg.Add(count)
-		for i := 0; i <= count; i += 1 {
+	go func() {
+		for i := 1; ; i++ {
+			fmt.Println("Бесконечный цикл", i)
+			if i%10 == 0 {
+				runtime.Gosched()
+				fmt.Println("Бесконечный цикл прерван")
+				time.Sleep(time.Second)
+			}
+		}
+	}()
+	time.Sleep(time.Second)
+
+	for i := 0; i < count; i++ {
 		go func() {
-			defer close(done)
-			defer wg.Done()
 			lock.Lock()
 			defer lock.Unlock()
-			ch <- i
+			counter += 1
+			fmt.Println("Горутина", counter)
 		}()
-		sec := <-ch
-		fmt.Println(sec)
 	}
-		wg.Add(1)
-		go func(i int) {
-		defer wg.Done()
-		for {
-		select {
-		case v := <-ch:
-		fmt.Println(v)
-		case <-done:
-		return
-		}
-		}
-		}(i)
-		}
-		wg.Wait()
-
+	time.Sleep(time.Second)
 }
